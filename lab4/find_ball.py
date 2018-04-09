@@ -26,6 +26,30 @@ def find_ball(opencv_image, debug=False):
 	ball = None
 	
 	## TODO: INSERT YOUR SOLUTION HERE
+	# print('Printing the opencv_image')
+	# print(opencv_image)
+	# opencv_image_grey = cv2.cvtColor(opencv_image, cv2.COLOR_RGB2GRAY)
+	opencv_image_blurred_once = cv2.GaussianBlur(opencv_image, (5,5), 0, 0)
+	opencv_image_blurred_twice = cv2.medianBlur(opencv_image_blurred_once, 5)
+	opencv_image_blurred_thrice = cv2.GaussianBlur(opencv_image_blurred_twice, (5,5), 0, 0)
+	opencv_image_blurred = cv2.GaussianBlur(opencv_image_blurred_thrice, (5,5), 0, 0)
+	circles = cv2.HoughCircles(opencv_image_blurred, cv2.HOUGH_GRADIENT, 1, 30, param1=30, param2=40, minRadius=0,maxRadius=0)
+	
+	# print('Printing the circles')
+	# print(circles)
+	
+	# biggestCircle = max(circles, key=lambda circle : circle[2])
+	biggestCircle = None
+	if not circles is None:
+		biggestCircle = circles[0][0]
+	
+	# print('Printing the biggestCircle')
+	# print(biggestCircle)
+	
+	if biggestCircle is None:
+		ball = None
+	else:
+		ball = [biggestCircle[0],biggestCircle[1],biggestCircle[2]]
 	
 	return ball
 
