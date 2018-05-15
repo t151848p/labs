@@ -72,7 +72,7 @@ def world_to_grid(worldPose, grid):
     return (int(worldPose.position.x/grid.scale), int(worldPose.position.y/grid.scale))
 
 def addObstaclesAround(grid, obstacleCoord):
-    grid.addObstacles([(x + obstacleCoord[0], y + obstacleCoord[1]) for y in range(-1,2) for x in range(-2,3)])
+    grid.addObstacles([(x + obstacleCoord[0], y + obstacleCoord[1]) for y in range(-2,3) for x in range(-2,3)])
 
 def closeEnough(start, goal):
     return heuristic(start, goal) <= 6
@@ -82,7 +82,7 @@ def addObstaclesIfSeen(robot, originalPose, grid):
     visibleObjects = robot.world.visible_objects
     if visibleObjectCount > 0:
         for visibleObject in visibleObjects:
-            if isinstance(visibleObject, cozmo.objects.LightCube) and visibleObject.object_id != 1:
+            if isinstance(visibleObject, cozmo.objects.LightCube) and visibleObject.object_id != 2:
                 addObstaclesAround(grid, world_to_grid(visibleObject.pose.define_pose_relative_this(originalPose), grid))
 
 def cozmoBehavior(robot: cozmo.robot.Robot):
@@ -121,7 +121,10 @@ def cozmoBehavior(robot: cozmo.robot.Robot):
                 for visibleObject in visibleObjects:
                     if isinstance(visibleObject, cozmo.objects.LightCube):
                         cubesFound[visibleObject.object_id] = visibleObject.pose.define_pose_relative_this(originalPose)
-                    if visibleObject.object_id == 1:
+                        print("Found cube")
+                        print(visibleObject.object_id)
+                        print(cubesFound[visibleObject.object_id])
+                    if visibleObject.object_id == 2:
                         foundCube1 = True
             if not foundCube1:
                 robot.turn_in_place(degrees(10)).wait_for_completed()
@@ -139,13 +142,13 @@ def cozmoBehavior(robot: cozmo.robot.Robot):
         cubePositions = [(cubeId, cubeToAdd.position.x, cubeToAdd.position.y, cubeToAdd.position.z, cubeToAdd.rotation.angle_z.degrees) for cubeId, cubeToAdd in cubesFound.items()]
         print(cubePositions)
         
-        cubeObstacles = [(int(cubeX/grid.scale), int(cubeY/grid.scale)) for cubeId, cubeX, cubeY, cubeZ, cubeAngle in cubePositions if cubeId != 1]
+        cubeObstacles = [(int(cubeX/grid.scale), int(cubeY/grid.scale)) for cubeId, cubeX, cubeY, cubeZ, cubeAngle in cubePositions if cubeId != 2]
         print(cubeObstacles)
         
         for cubeObstacle in cubeObstacles:
             addObstaclesAround(grid, cubeObstacle)
         # grid.addObstacles(cubeObstacles)
-        goalCube = [(int(cubeX/grid.scale), int(cubeY/grid.scale)) for cubeId, cubeX, cubeY, cubeZ, cubeAngle in cubePositions if cubeId == 1][0]
+        goalCube = [(int(cubeX/grid.scale), int(cubeY/grid.scale)) for cubeId, cubeX, cubeY, cubeZ, cubeAngle in cubePositions if cubeId == 2][0]
         print("goalCube")
         print(goalCube)
         grid.addGoal(goalCube)
