@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 
 ##############
-#### Your name:
+#### Your name: Thayalan Pirapakaran (t151848p)
 ##############
 
 import numpy as np
 import re
 from sklearn import svm, metrics
+from sklearn.svm import LinearSVC
 from skimage import io, feature, filters, exposure, color
+from skimage.morphology import disk
 
 class ImageClassifier:
     
     def __init__(self):
         self.classifer = None
 
-    def imread_convert(self, f):
+    def imread_convert(self, f, img_num=0):
         return io.imread(f).astype(np.uint8)
 
     def load_data_from_folder(self, dir):
@@ -32,15 +34,16 @@ class ImageClassifier:
         
         return(data,labels)
 
+    def extract_feature_vector_from_image(self, image):
+        # Convert the image into a feature vector by using Gaussian blur and then flatten 2d image into a single vector
+        return filters.gaussian(color.rgb2gray(image), sigma=3).flatten()
+
     def extract_image_features(self, data):
         # Please do not modify the header above
 
         # extract feature vector from image data
+        feature_data = [self.extract_feature_vector_from_image(image) for image in data]
 
-        ########################
-        ######## YOUR CODE HERE
-        ########################
-        
         # Please do not modify the return type below
         return(feature_data)
 
@@ -48,25 +51,33 @@ class ImageClassifier:
         # Please do not modify the header above
         
         # train model and save the trained model to self.classifier
-        
-        ########################
-        ######## YOUR CODE HERE
-        ########################
+        self.classifier = LinearSVC()
+        self.classifier.fit(train_data, train_labels)
 
     def predict_labels(self, data):
         # Please do not modify the header
 
         # predict labels of test data using trained model in self.classifier
         # the code below expects output to be stored in predicted_labels
-        
-        ########################
-        ######## YOUR CODE HERE
-        ########################
-        
+        predicted_labels = self.classifier.predict(data)
+
         # Please do not modify the return type below
         return predicted_labels
 
-      
+    def train_model(self):
+        # load images
+        (train_raw, train_labels) = self.load_data_from_folder('./train/')
+        (test_raw, test_labels) = self.load_data_from_folder('./test/')
+
+        # convert images into features
+        train_data = self.extract_image_features(train_raw)
+        test_data = self.extract_image_features(test_raw)
+
+        # train model and test on training data
+        self.train_classifier(train_data, train_labels)
+        predicted_labels = self.predict_labels(train_data)
+
+
 def main():
 
     img_clf = ImageClassifier()
