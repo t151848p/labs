@@ -9,14 +9,26 @@ import sys
 from enum import Enum
 from imgclassification import ImageClassifier
 from itertools import groupby
+from pathlib import Path
+import pickle
+
+ModelFileName = "CardClassifierModel.bin"
 
 async def cozmoCardClassifier(robot: cozmo.robot.Robot):
     ''' Cozmo Card classifier implementation - gathers 10 images then runs a prediction on them to see if it saw a familiar card '''
 
     robot.move_lift(-3)
     robot.set_head_angle(cozmo.util.degrees(0)).wait_for_completed()
-    imgClassifier = ImageClassifier()
-    imgClassifier.train_model()
+
+    model_file = Path(ModelFileName)
+    if model_file.is_file():
+        with open(ModelFileName, 'rb') as input:
+            imgClassifier = pickle.load(input)
+    else:
+        with open(ModelFileName, 'wb') as output:
+            imgClassifier = ImageClassifier()
+            imgClassifier.train_model()
+            pickle.dump(imgClassifier, output, pickle.HIGHEST_PROTOCOL)
 
     while True:
         images = []
@@ -27,9 +39,14 @@ async def cozmoCardClassifier(robot: cozmo.robot.Robot):
             opencv_image = cv2.cvtColor(np.asarray(event.image), cv2.COLOR_RGB2GRAY)
             images.append(opencv_image)
 
-        predictions = [prediction[0] for prediction in imgClassifier.predict_labels(imgClassifier.extract_image_features(images))]
+        predictions = imgClassifier.predict_labels(imgClassifier.extract_image_features(images))
+        
+        print("predictions")
+        print(predictions)
 
         (mostLikelyCardType, mostLikelyCardFrequency) = max([(key,len(list(group))) for key, group in groupby(predictions)], key=lambda x: x[1])
+        
+        print("likely going to be %s" % mostLikelyCardType)
         
         if mostLikelyCardType in ['drone', 'hands', 'inspection'] and mostLikelyCardFrequency > 5:
             textToSay = "I think I see '%s'" % mostLikelyCardType
