@@ -25,37 +25,37 @@ def question2():
     return answerDiscount, answerNoise
 
 def question3a():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    answerDiscount = 0.1 # strong discount to ensure it goes towards the close exit
+    answerNoise = 0 # no noise so no risk of cliff
+    answerLivingReward = 0
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3b():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    answerDiscount = 0.1 # strong discount to ensure it goes towards the close exit
+    answerNoise = 0.1 # some noise so it skips the cliff
+    answerLivingReward = 0
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3c():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    answerDiscount = 0.99 # need some discount to avoid going the long route
+    answerNoise = 0 # no noise to risk the cliff
+    answerLivingReward = 0
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3d():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    answerDiscount = 1 # no discount so it goes the long route towards the distant exit
+    answerNoise = 0.4 # some noise so it skips the cliff
+    answerLivingReward = 0
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3e():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    answerDiscount = 1 # time doesn't matter
+    answerNoise = 0 # always deterministic
+    answerLivingReward = 1 # living longer is better so it'll never terminate
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 

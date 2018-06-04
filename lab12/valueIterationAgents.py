@@ -45,7 +45,24 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
+        for iteration in range(iterations):
+            newValues = util.Counter()
+            for state in mdp.getStates():
+                possibleActions = mdp.getPossibleActions(state)
+                if len(possibleActions) > 0:
+                    newValues[state] = max([self.computeQValueFromValues(state, action) for action in possibleActions])
+            self.values = newValues
 
+
+    def getTransitionProb(self, state, action, nextState):
+        nextStatesProbs = self.mdp.getTransitionStatesAndProbs(state, action)
+        # print(nextStatesProbs)
+        nextStateProb = [nextPossibleStateProb for (nextPossibleState, nextPossibleStateProb) in nextStatesProbs if nextPossibleState == nextState]
+        # print(nextState)
+        # print(nextStateProb)
+        if len(nextStateProb) == 1:
+            return nextStateProb[0]
+        return 0
 
     def getValue(self, state):
         """
@@ -60,7 +77,9 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # (NextState, NextStateFromStateActionProb)
+        #print(self.mdp.getTransitionStatesAndProbs(state, action))
+        return sum([self.getTransitionProb(state, action, nextState) * (self.mdp.getReward(state, action, nextState) + self.discount * self.getValue(nextState)) for nextState in self.mdp.getStates()])
 
     def computeActionFromValues(self, state):
         """
@@ -72,7 +91,11 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        possibleActions = self.mdp.getPossibleActions(state)
+        if self.mdp.isTerminal(state) or len(possibleActions) == 0:
+            return None
+        
+        return max([action for action in possibleActions], key=lambda x: self.computeQValueFromValues(state, x))
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
